@@ -1,64 +1,88 @@
 from socket import socket, AF_INET, SOCK_STREAM
+import sys
+import re
 
-target_host = "148.113.42.34"
-target_port = 27153
+def main():
+    if len(sys.argv) > 1:
+        argument = sys.argv[1]
 
-client = socket(AF_INET, SOCK_STREAM)
+        match argument:
 
-# Choisir un port local différent du port serveur
-client.bind(("0.0.0.0", 50000))  # Change 50000 si nécessaire
+            case "-ipp" | "--ip_port":
+                target_host = sys.argv[2]
+                target_port = int(sys.argv[3])
 
-client.connect((target_host, target_port))  # Connexion au serveur
-# Recevoir les 5 premiers octets de la réponse
-response = client.recv(4096)
-exam_response = response.decode('utf-8')
-print(exam_response)
+    client = socket(AF_INET, SOCK_STREAM)
 
+    # Choisir un port local différent du port serveur
+    client.bind(("0.0.0.0", 50000))  # Change 50000 si nécessaire
 
-class answer:
-    def __init__(self, message):
-        self.message = message
-
-
-    def response(self):
-        # Envoyer une chaîne de caractères au serveur
-        client.sendall(self.message.encode('utf-8'))
-        print("Stephane/dai/3SI5")
-
-        check = client.recv(4096)
-        check_response = check.decode('utf-8')
-        print(check_response)
+    client.connect((target_host, target_port))  # Connexion au serveur
 
 
+    class answer:
+        def __init__(self, message):
+            self.message = message
+
+        def response(self):
+            
+
+            client.sendall(self.message.encode('utf-8'))
+            check = client.recv(4096)
+            check_response = check.decode('utf-8')
+            print(check_response)
+            return check_response
+
+        def regex(self, response):
+            if response is None or response == "":
+                return
+            # Recevoir les 5 premiers octets de la réponse
 
 
-teste = answer("Stephane/dai/3SI5")
-teste.response()
+            # Utilisation de regex pour obtenir les chiffres
+            numbers = r"(\d+)\s*[\+\-\*\/]\s*(\d+)"
+            match = re.search(numbers, response)
+            if match:
+                operation = match.group(0).strip()
+                if '+' in operation:
+                    result = int(match.group(1)) + int(match.group(2))  
+                elif '*' in operation:
+                    result = int(match.group(1)) * int(match.group(2))  
+                elif '/' in operation:
+                    result = int(match.group(1)) / int(match.group(2))
+                elif '-' in operation:
+                    result = int(match.group(1)) - int(match.group(2))
+                
+            
 
-teste = answer("10/02")
-teste.response()
-
-calcule = 888 + 813
-teste = answer(str(calcule))
-teste.response()
-
-
-
-
-
+            result_message = str(result).encode('utf-8')
+            client.sendall(result_message)            
+            check = client.recv(4096)
+            check_response = check.decode('utf-8')
+            print(result)
+            print(check_response)
+            return check_response
+            
+            
 
 
 
 
+    teste = answer("Stephane/dai/3SI5")
+    teste.response()
+    teste = answer("10/02")
+    teste.response()
+    response = teste.response()
+    if response:
+        teste.regex(response)
+        teste.response()
 
 
-# client.sendall(b"10/02")
-# print("10/02")
 
-# check_2 = client.recv(4096)
-# check_2_response = check_2.decode('utf-8')
-# print(check_2_response)
 
-# calcul = 534 - 386
-# client.sendall(b calcul)
+
+main()
+
+
+
 
