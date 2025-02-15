@@ -1,6 +1,61 @@
 from socket import socket, AF_INET, SOCK_STREAM
 import sys
 import re
+import datetime
+
+
+class Answer:
+        def __init__(self,client ,message):
+            self.client = client
+            self.message = message
+        def response(self):
+
+
+            self.client.sendall(self.message.encode('utf-8'))
+            check = self.client.recv(4096)
+            check_response = check.decode('utf-8')
+            print(check_response)
+            return check_response
+
+        def regex(self, response):
+            if response is None or response == "" :
+                return
+
+
+            # Ignorer si la réponse est une date au format dd/mm
+            if re.match(r"^\d{2}/\d{2}$", response):
+                print("Réponse identifiée comme une date. Aucun calcul effectué.")
+                return
+        
+            # Recevoir les 5 premiers octets de la réponse
+
+
+            # Regex pour détecter une opération mathématique
+            pattern = r"(\d+)\s*([\+\-\*])\s*(\d+)"
+            match = re.search(pattern, response)
+
+            if match:
+                num1, operator, num2 = int(match.group(1)), match.group(2), int(match.group(3))
+                result = None
+
+
+
+                match operator:
+
+                    case '+':
+                        result = num1 + num2
+                    case '*':
+                        result = num1 * num2
+                    case '-' :
+                        result = num1 - num2
+
+                print(f"Résultat du calcul: {str(result)}")
+                result_message = str(result).encode('utf-8')
+                self.client.sendall(result_message)
+                check = self.client.recv(4096)
+                check_response = check.decode('utf-8')
+                return check_response
+
 
 def main():
     if len(sys.argv) > 1:
@@ -8,9 +63,9 @@ def main():
 
         match argument:
 
-            case "-ipp" | "--ip_port":
-                target_host = sys.argv[2]
-                target_port = int(sys.argv[3])
+            case "-p" | "--port":
+                target_host = "148.113.42.34"
+                target_port = int(sys.argv[2])
 
     client = socket(AF_INET, SOCK_STREAM)
 
@@ -20,62 +75,34 @@ def main():
     client.connect((target_host, target_port))  # Connexion au serveur
 
 
-    class answer:
-        def __init__(self, message):
-            self.message = message
+    try:
 
-        def response(self):
-            
+        responses = [
+            "Stephane/dai/3SI5",
+            datetime.datetime.now().strftime("%d/%m"),''
+        ]
 
-            client.sendall(self.message.encode('utf-8'))
-            check = client.recv(4096)
-            check_response = check.decode('utf-8')
-            print(check_response)
-            return check_response
-
-        def regex(self, response):
-            if response is None or response == "":
-                return
-            # Recevoir les 5 premiers octets de la réponse
+        for message in responses:
+            teste = Answer(client, message)
+            server_response = teste.response()
+            if server_response is None:
+                break
 
 
-            # Utilisation de regex pour obtenir les chiffres
-            numbers = r"(\d+)\s*[\+\-\*\/]\s*(\d+)"
-            match = re.search(numbers, response)
-            if match:
-                operation = match.group(0).strip()
-                if '+' in operation:
-                    result = int(match.group(1)) + int(match.group(2))  
-                elif '*' in operation:
-                    result = int(match.group(1)) * int(match.group(2))  
-                elif '/' in operation:
-                    result = int(match.group(1)) / int(match.group(2))
-                elif '-' in operation:
-                    result = int(match.group(1)) - int(match.group(2))
-                
-            
-
-            result_message = str(result).encode('utf-8')
-            client.sendall(result_message)            
-            check = client.recv(4096)
-            check_response = check.decode('utf-8')
-            print(result)
-            print(check_response)
-            return check_response
-            
-            
+        if re.search(r"(\d+)\s*[\+\-\*]\s*(\d+)", server_response):
+            calc_response = teste.regex(server_response)  # Vérifier si la réponse contient un calcul                calc_response = teste.regex(server_response)
+            if calc_response:
+                print("Réponse calculée :", calc_response)
+        else:
+            print("Réponse non calculée :", server_response)
 
 
 
+    except Exception as e:
+        print("Erreur de connexion :", e)
 
-    teste = answer("Stephane/dai/3SI5")
-    teste.response()
-    teste = answer("10/02")
-    teste.response()
-    response = teste.response()
-    if response:
-        teste.regex(response)
-        teste.response()
+    finally:
+        client.close()
 
 
 
