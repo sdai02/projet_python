@@ -6,7 +6,6 @@ import base64
 
 
 
-
 class Answer:
     def __init__(self,client ,message):
         self.client = client
@@ -44,43 +43,47 @@ class Answer:
                 case '-' :
                     result = num1 - num2
 
-            print(f"Résultat du calcul: {str(result)}")
             result_message = str(result).encode('utf-8')
             self.client.sendall(result_message)
             check = self.client.recv(4096).decode('utf-8')
-            return check
+            split_check = check.split(" ")
+            target_string = split_check[-1]
+            print(check)
+            return target_string
         
 
     
 
+
     def base_64(self, response):
+        """Essaie plusieurs encodages et envoie la première version valide au serveur immédiatement."""
+        
+        encodings = {
+            base64.b85decode,  # Priorité au plus efficace
+            base64.b32decode,
+            base64.b64decode,
+        }
 
-        # Regex pour récuperer le message encoder
-        match = re.search(r"Décoder ce message:\s*([\w+/=]+)", response)
-        if match:
-            encoded_message = match.group(1).strip()  # Récupérer la chaîne encodée
-            print(f"Message encodé trouvé: {encoded_message}")
+        for decode in encodings.items():
+            try:
+                decoded_bytes = decode(response.encode('utf-8'))
+                decoded_message = decoded_bytes.decode('utf-8')  # Convertir en string
+                
+                # Envoi immédiat (on retire le print pour éviter la latence)
+                self.client.sendall(decoded_message.encode('utf-8'))
+                check = self.client.recv(4096).decode('utf-8')  # Réception immédiate
+                print(check)
+                return check 
 
-        if match:
-            parts = match.group(1)
+            except Exception:
+                continue  # Ignore l'erreur et passe au prochain encodage
 
-            print("Message encodé :", parts)
-            encodings= {
-                "Base64": base64.b64decode,
-                "Base32": base64.b32decode,
-                "Base85": base64.b85decode
-            }    
-            for name, decode in encodings.items():
-                try:
-                    decoded_bytes = decode(parts)
-                    decode_message = decoded_bytes.decode('utf-8')
+        return None  # Aucun décodage ne fonctionne
 
-                    return decode_message
-                except Exception as e:
-                    print("{name}:{e}")
 
-        print("rien a marcher")
-        return None
+
+
+       
         
   
 def reader():
@@ -107,7 +110,6 @@ def increment_counter(increment_value):
 def main():
 
 
-
     if len(sys.argv) > 1:
         argument = sys.argv[1]
 
@@ -124,7 +126,7 @@ def main():
     client.connect(("148.113.42.34", target_port))  
 
 
-    question_1=[ "Stephane/dai/3SI5",datetime.datetime.now().strftime("%d/%m"),'']
+    question_1=[ "Stephane/dai/3SI5",datetime.datetime.now().strftime("%d/%m"),'','']
 
     for texte in question_1:
 
@@ -136,21 +138,11 @@ def main():
         if re.search(r"(\d+)\s*[\+\-\*]\s*(\d+)", server_response):
             calc_response = teste.regex(server_response)  # Vérifier si la réponse contient un calcul                
             if calc_response:
-                print(calc_response)    
-                server_response = teste.response()
+                teste.response()
+                teste.base_64(calc_response)
+                teste.response()
 
-            
-                decode = teste.base_64(server_response)
-                if decode:
-                    print(decode)
-                    teste.response()
-
-
-
-
-
-
-
+                
 main()
 
 
