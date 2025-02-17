@@ -55,16 +55,16 @@ class Answer:
         return decoded_message
 
     def braille(self, braille_message):
-        braille_dict = {
-            "A": "⠁", "B": "⠃", "C": "⠉", "D": "⠙", "E": "⠑", "F": "⠋", "G": "⠛", "H": "⠓",
-            "I": "⠊", "J": "⠚", "K": "⠅", "L": "⠇", "M": "⠍", "N": "⠝", "O": "⠕", "P": "⠏",
-            "Q": "⠟", "R": "⠗", "S": "⠎", "T": "⠞", "U": "⠥", "V": "⠧", "W": "⠺", "X": "⠭",
-            "Y": "⠽", "Z": "⠵", 
+        braille_dict= {
+            "⠁": "A", "⠃": "B", "⠉": "C", "⠙": "D", "⠑": "E", "⠋": "F", "⠛": "G", "⠓": "H",
+            "⠊": "I", "⠚": "J", "⠅": "K", "⠇": "L", "⠍": "M", "⠝": "N", "⠕": "O", "⠏": "P",
+            "⠟": "Q", "⠗": "R", "⠎": "S", "⠞": "T", "⠥": "U", "⠧": "V", "⠺": "W", "⠭": "X",
+            "⠽": "Y", "⠵": "Z", 
             " ": " "
         }
-
-        braille_message = ''.join(braille_dict.get(letter, '') for letter in braille_message)
-        return braille_message
+        
+        new_braille_message = ''.join(braille_dict.get(letter, '?') for letter in braille_message.split())
+        return new_braille_message
 
     def hexa(self, response):
 
@@ -74,12 +74,13 @@ class Answer:
         if any(c in decoded_message for c in ['.', '-', '/']):
             morse_decoded = self.morser(decoded_message)  # Décodage du morse
         else:
-            print (decoded_message)
             braille_decoded = self.braille(decoded_message)
-            print(braille_decoded)
             return print(self.send_receive(braille_decoded))
 
         return self.send_receive(morse_decoded,split_last=True)
+    
+    def colors(self,response):
+        return 0
   
 
 def reader():
