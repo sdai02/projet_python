@@ -269,7 +269,9 @@ def main():
                                     answer.find(remember)  # Search for the letter
                                     answer.all_answers()  # Return all answers
                                 else:
+                                    print("wrong answers")
                                     answer.reset_answers_file()  # Reset if needed
                 else:
+                    print("wrong answers")
                     answer.reset_answers_file()  # Reset if decoding fails
 main()  # Run the program
