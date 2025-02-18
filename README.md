@@ -1,112 +1,59 @@
-Here's the updated `README.md` with the **Command to Initiate** section added:
 
-```markdown
-# Server Response Handler
+# Encrypted Message Solver Project
 
-This script is designed to interact with a server, process the server's responses, and perform various tasks based on the content of the responses. It supports operations like solving math problems, decoding base85/base32/base64 encoded messages, decoding morse and braille, converting RGB to color names, and more. It also handles file saving and retrieval to manage the answers.
+## Description
+This script is a client-side program that interacts with a remote server using a communication protocol based on encrypted or encoded messages. It utilizes several techniques to solve and decrypt messages, such as math operations, base decoding (Base64, Base32, Base85), Morse code, Braille, RGB color decoding, word searching in a list, and Caesar cipher encryption.
+
+The script connects to a server via a TCP socket, exchanges messages, and solves puzzles using the server's responses. It saves the responses in a file, processes mathematical operations, decodes messages in different formats, and sends results back to the server.
 
 ## Features
+- **Mathematical Operations**: Solve operations such as addition, subtraction, and multiplication.
+- **Base64/Base32/Base85 Decoding**: Supports decoding messages encoded in various bases.
+- **Morse Code**: Decode messages in Morse code.
+- **Braille**: Decode messages in Braille.
+- **RGB Colors**: Convert RGB values to color names.
+- **Caesar Cipher**: Decode text encrypted using Caesar cipher (shift cipher).
+- **Answer History**: Save responses in a text file and allow retrieval.
 
-- **Math Problem Solver**: Detects and solves simple math operations (addition, subtraction, multiplication).
-- **Base Decoding**: Decodes messages encoded in base85, base32, or base64.
-- **Morse Code Decoding**: Decodes messages in morse code.
-- **Braille Decoding**: Decodes messages in braille.
-- **Hexadecimal Decoding**: Decodes messages in hexadecimal format and passes them for further processing.
-- **RGB to Color Name**: Converts RGB values into color names using the `webcolors` library.
-- **File Management**: Saves and retrieves answers from a text file (`answers.txt`).
-- **Counter Management**: Manages a counter stored in `counter.txt` to handle connections.
-
-## Requirements
-
+## Prerequisites
 - Python 3.x
-- `webcolors` library (for RGB to color name conversion)
-- `base64` library (for encoding and decoding)
+- The following Python modules must be installed:
+  - `nltk`
+  - `pycipher`
+  - `webcolors`
 
-You can install the required dependencies using pip:
+### Installing Dependencies
+1. Create a virtual environment (optional but recommended):
+   ```bash
+   python3 -m venv myenv
+   source myenv/bin/activate  # Activate the virtual environment
+   ```
 
-```bash
-pip install webcolors
-```
+2. Install the dependencies:
+   ```bash
+   pip install nltk pycipher webcolors
+   ```
 
-## How It Works
-
-The script operates by connecting to a server over a socket connection. It sends a predefined set of initial messages and processes the responses from the server.
-
-### Commands
-
-The following commands are processed by the script:
-
-1. **Math Operations**: 
-   - The script looks for math operations in the server’s response (e.g., `2 + 3`), solves them, and sends the result back.
-   - It uses regular expressions to identify operations like addition, subtraction, and multiplication.
-
-2. **Base Decoding**: 
-   - If the response contains a base-encoded message, it attempts to decode it using base85, base32, or base64.
-   - Once decoded, the script checks the content and processes it further.
-
-3. **Morse Code Decoding**: 
-   - If the response contains morse code (e.g., `.- -... -.-.`), the script will convert it into readable text.
-   - The morse code is translated using a predefined dictionary of Morse symbols.
-
-4. **Braille Decoding**: 
-   - The script can also decode Braille characters. It maps each Braille character to its corresponding alphabet letter.
-   - The response is processed, and the decoded Braille message is returned.
-
-5. **Hexadecimal Decoding**: 
-   - The script can decode messages in hexadecimal format (e.g., `48656c6c6f`), converting them into readable text.
-   - The decoded message is passed through additional processing (e.g., decoding morse or braille).
-
-6. **RGB to Color Name**: 
-   - If the response contains an RGB value in the format `(r, g, b)`, the script converts it into a color name using the `webcolors` library.
-
-7. **Rewind and Find**: 
-   - The script also supports rewinding and finding specific answers in the saved `answers.txt` file based on a number input (from 1 to 7).
-   - It uses regular expressions to identify the "find" command and retrieves the relevant answer.
-
-8. **Save Answers**: 
-   - All responses are saved in `answers.txt`. The script logs each response it processes for later use.
-
-### File Management
-
-- **`answers.txt`**: This file stores the answers obtained from processing server responses. Each response is saved on a new line.
-- **`counter.txt`**: This file keeps track of a counter. Each time the script is run, the counter is incremented to ensure unique port usage.
+3. Download the necessary NLTK corpora:
+   ```python
+   import nltk
+   nltk.download('words')
+   ```
 
 ## Usage
 
-### Command to Initiate
+### Running the Script
 
-To start the script, use the following command:
-
-```bash
-python script.py --port <target_port>
-```
-
-Where:
-- `<target_port>` is the port of the server you're connecting to.
-
-This command will start the script and initiate a connection to the server on the specified port. The script will then begin sending and receiving messages as described above.
-
-### Example:
+The script can be run from the command line with options to specify the port for connecting to the remote server. Here’s the command to start the program:
 
 ```bash
-python script.py --port 12345
+python script.py --port <port>
 ```
 
-This will connect the script to the server at port `12345` and start processing the responses.
+Where `<port>` is the server port to connect to.
 
-## Example Interaction
+### Generated Files
+- `counter.txt`: A file that keeps track of a counter for script execution.
+- `answers.txt`: A file where the server responses and calculated answers are saved.
+- `<name>.txt`: A file where the answers are stored, specific to each execution.
 
-1. The script sends the message `Stephane/dai/3SI5` to the server.
-2. The server responds with a math operation: `5 + 3`.
-3. The script solves the math problem and sends `8` back to the server.
-4. The server may respond with a base64-encoded string.
-5. The script decodes the base64 message and continues processing based on the decoded content.
-
-## License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-```
-
-### Changes made:
-1. **Command to Initiate**: Added clear instructions on how to start the script by running the command with the port parameter (`python script.py --port <target_port>`).
-2. **Example of Command**: Provided an example of using the command with a specific port (`python script.py --port 12345`).
