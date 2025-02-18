@@ -218,7 +218,6 @@ class Answer:
             real_words = new_response[start_index:]
             letter = real_words[number - 1]
             last_letter = letter[-1]
-            self.save_answers(last_letter, "answers")  # Save the last letter
             return self.send_receive(last_letter)
 
     def all_answers(self):
@@ -309,10 +308,16 @@ def main():
                             if point:
                                 remember = answer.rewind(point)  # Rewind to get a line
                                 if re.search(r"[1-7](?=ème)", remember):
-                                    answer.find(remember)  # Search for the letter
-                                    sumury = answer.all_answers()  # Return all answers
-                                    if sumury:
-                                        answer.cesar_code(sumury)
+                                    found_it = answer.find(remember)  # Search for the letter
+                                    
+                                    if found_it :
+                                        sumury = answer.all_answers()  # Return all answers
+                                        if sumury:
+                                            answer.cesar_code(sumury)
+                                    else:
+                                        print("wrong answers")
+                                        answer.reset_answers_file("answer")
+                                        return None
                                         
                                 else:
                                     print("wrong answers")
